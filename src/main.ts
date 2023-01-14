@@ -11,7 +11,12 @@ import {
   updateUserById,
 } from './controllers/UserController';
 import { validateRequiredFields, validateUserId } from './utils/validators';
-
+import {
+  invalidUserIdResponse,
+  missedRequiredFieldsResponse,
+  resourceNotFoundResponse,
+  unExistingUserResponse,
+} from './utils/responses';
 
 dotenv.config();
 
@@ -30,23 +35,19 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
           break;
         }
         case POST: {
-          getJSONDataFromRequest<User>(req)
-            .then((user: User) => {
-              if (validateRequiredFields(user)) {
-                createNewUser(user).then(newUser => {
-                  res.statusCode = 201;
-                  res.setHeader('Content-Type', 'application/json');
-                  res.end(JSON.stringify(newUser));
-                });
-              } else {
-                res.statusCode = 400;
+          getJSONDataFromRequest<User>(req).then((user: User) => {
+            if (validateRequiredFields(user)) {
+              createNewUser(user).then((newUser) => {
+                res.statusCode = 201;
                 res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify({ message: 'body does not contain required fields or some fields are invalid' }));
-              }
-            });
+                res.end(JSON.stringify(newUser));
+              });
+            } else {
+              missedRequiredFieldsResponse(res);
+            }
+          });
           break;
         }
-
       }
       break;
     }
@@ -54,93 +55,70 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
       switch (req.method) {
         case GET: {
           if (validateUserId(userId!)) {
-            getUserById(userId!).then(result => {
+            getUserById(userId!).then((result) => {
               if (result) {
                 res.setHeader('Content-Type', 'application/json');
                 res.statusCode = 200;
                 res.end(JSON.stringify(result));
               } else {
-                res.setHeader('Content-Type', 'application/json');
-                res.statusCode = 404;
-                res.end(JSON.stringify({ message: `Record with id - ${userId} doesn't exist` }));
+                unExistingUserResponse(res, userId as string);
               }
             });
           } else {
-            res.setHeader('Content-Type', 'application/json');
-            res.statusCode = 400;
-            res.end(JSON.stringify({ message: `userId - ${userId} is invalid` }));
+            invalidUserIdResponse(res, userId as string);
           }
           break;
         }
         case DELETE: {
           if (validateUserId(userId!)) {
-            getUserById(userId!).then(result => {
+            getUserById(userId!).then((result) => {
               if (result) {
                 removeUserById(userId!).then(() => {
                   res.statusCode = 204;
                   res.setHeader('Content-Type', 'application/json');
-                  res.end()
+                  res.end();
                 });
-
               } else {
-                res.statusCode = 404;
-                res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify({ message: `Record with id - ${userId} doesn't exist` }));
+                unExistingUserResponse(res, userId as string);
               }
-
             });
           } else {
-            res.setHeader('Content-Type', 'application/json');
-            res.statusCode = 400;
-            res.end(JSON.stringify({ message: `userId - ${userId} is invalid` }));
+            invalidUserIdResponse(res, userId as string);
           }
-
           break;
         }
         case PUT: {
           if (validateUserId(userId!)) {
-            getUserById(userId!).then(result => {
+            getUserById(userId!).then((result) => {
               if (result) {
-                getJSONDataFromRequest<User>(req)
-                  .then((user: User) => {
-                    if (validateRequiredFields(user)) {
-                      updateUserById(userId!, user).then(newUser => {
-                        res.statusCode = 200;
-                        res.setHeader('Content-Type', 'application/json');
-                        res.end(JSON.stringify(newUser));
-                      });
-                    } else {
-                      res.statusCode = 400;
+                getJSONDataFromRequest<User>(req).then((user: User) => {
+                  if (validateRequiredFields(user)) {
+                    updateUserById(userId!, user).then((newUser) => {
+                      res.statusCode = 200;
                       res.setHeader('Content-Type', 'application/json');
-                      res.end(JSON.stringify({ message: `body does not contain required fields or some fields are invalid` }));
-                    }
-                  });
+                      res.end(JSON.stringify(newUser));
+                    });
+                  } else {
+                    missedRequiredFieldsResponse(res);
+                  }
+                });
               } else {
-                res.statusCode = 404;
-                res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify({ message: `Record with id - ${userId} doesn't exist` }));
+                unExistingUserResponse(res, userId as string);
               }
             });
           } else {
-            res.setHeader('Content-Type', 'application/json');
-            res.statusCode = 400;
-            res.end(JSON.stringify({ message: `userId - ${userId} is invalid` }));
+            invalidUserIdResponse(res, userId as string);
           }
           break;
         }
       }
-
       break;
     }
     default: {
-      res.setHeader('Content-Type', 'application/json');
-      res.statusCode = 404;
-      res.end(JSON.stringify({ message: `${req.url} - Resource not found` }));
+      resourceNotFoundResponse(req, res);
     }
-
   }
 });
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-

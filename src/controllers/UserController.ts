@@ -19,7 +19,7 @@ export const removeUserById = (userId:string) =>{
   }), 1)));
 }
 export const updateUserById = (userId:string,newUser:User) =>{
-  return new Promise((resolve) =>  resolve( users.find((user) => {
+  return new Promise((resolve) =>  resolve(users.find((user) => {
     if(user.id === userId) {
       user.username = newUser.username
       user.age = newUser.age;
@@ -28,14 +28,13 @@ export const updateUserById = (userId:string,newUser:User) =>{
     }
   })))
 }
-export const getJSONDataFromRequest =<T>(request: IncomingMessage): Promise<T> => {
+export const getJSONDataFromRequest =<T>(req: IncomingMessage): Promise<T> => {
   return new Promise(resolve => {
     const chunks = [] as Uint8Array[];
-    request.on('data', (chunk) => {
+    req.on('data', (chunk) => {
       chunks.push(chunk);
     });
-    request.on('end', () => {
-      console.log(JSON.parse(Buffer.concat(chunks).toString()));
+    req.on('end', () => {
       resolve(
         JSON.parse(
           Buffer.concat(chunks).toString()
