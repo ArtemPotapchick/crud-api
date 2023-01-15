@@ -20,3 +20,8 @@ export const resourceNotFoundResponse = (req:IncomingMessage,res:ServerResponse)
   res.statusCode = 404;
   res.end(JSON.stringify({ message: `${req.url} - Resource not found` }));
 }
+export const internalServerErrorResponse = (res:ServerResponse)=>{
+  res.statusCode = 500
+  res.setHeader('Content-Type', 'application/json');
+  res.end(JSON.stringify({message:'Internal server error'}))
+}
