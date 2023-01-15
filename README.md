@@ -16,24 +16,24 @@ npm install
 #### There are 2 modes of running application (**development** and **production**):
 - The application is run in **development** mode using **nodemon** there is a npm script
 ```bash
-npm start:dev
+npm run start:dev
 ```
 
 - The application is run in **production** mode (there is a npm script that starts the build process and then runs the bundled file)
  ```bash 
-npm start:prod
+npm run start:prod
 ``` 
 #### To run app tests use
  ```bash
- npm test 
+npm run test 
 ``` 
 #### Also performed ESlint for application use for detect code errors and warning
 ```bash
-npm lint 
+npm run lint 
 ``` 
 #### Then use format to auto fix some of them (if it's possible to auto format).
  ```bash 
-npm format
+npm run format
 ```
 ```json
 {
@@ -51,7 +51,7 @@ npm format
     + touch .env - for Linux/Mac
 2. Open this file and write  PORT as you prefere (remember 1024–49151 allowed to use):
     + Example: PORT=5000
-3. Go to command prompt and write ```npm start:dev``` or ```npm start:prod``` as you prefere
+3. Go to command prompt and write ```npm run start:dev``` or ```npm run start:prod``` as you prefere
 4. Open _Postman_ or whatever app you use to test endpoints
 5. Make request to endpoints with port
     + Example: ***http://localhost:3000/api/users***
